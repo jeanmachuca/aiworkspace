@@ -1,74 +1,47 @@
 # AI Workspace
 
-This workspace root is a **scaffold** for creating independent projects. Each subfolder is its own git repo with its own GitHub remote. Nothing at root level is shared code — it's all workspace-level tooling config.
+This is a **workspace scaffold** for creating independent projects. Root is **not** a code project — it's workspace-level tooling config.
 
 ## Structure
 
-- Each subfolder = standalone git repo, independent language/framework, its own CI, its own `AGENTS.md`. Enforced by `.gitignore` (`/*/` ignores all subdirectories at root level)
-- Root config files (this file, `opencode.json`, `.pre-commit-config.yaml`, `.github/`) are **workspace scaffolding**, not project-specific — do not apply them to subfolder repos
-- `.opencode/instructions/git-workflow.md` — workspace-wide git convention (topic branches, no rebase, SemVer). Referenced via `opencode.json` `instructions`. Apply per-repo when creating new projects.
+- Each subfolder = standalone git repo, own language/framework, own CI, own `AGENTS.md`
+- `.gitignore` uses `/*/` to ignore all subdirectories; only `/.github/` and `/.opencode/` are tracked at root
+- Root config (`opencode.json`, `.pre-commit-config.yaml`, `.github/`) is **scaffolding** — do not apply to subfolder repos
+- `.opencode/instructions/git-workflow.md` has `alwaysApply: true` — loaded every session; governs git operations across all subfolder repos
 
-## What's ready
+## What's ready at root
 
-- `opencode.json` — configured with local inference server at `http://api:8000/v1` and several cloud model aliases
-- `.pre-commit-config.yaml` — only generic hooks (trailing-whitespace, end-of-file-fixer, check-yaml, check-added-large-files)
-- `dev-requirements.txt` — only `pre-commit` installed; language-specific tools (ruff, mypy, pytest) are **placeholders** — each project must install its own
-- CI workflows (`.github/workflows/`) — all **placeholder/TODO** scaffolding; every project needs its own CI
+| Thing | Detail |
+|-------|--------|
+| `opencode.json` | Local inference at `http://api:8000/v1` + cloud model aliases |
+| `.pre-commit-config.yaml` | Generic hooks only (trailing-whitespace, EOF fixer, check-yaml, check-added-large-files) |
+| `dev-requirements.txt` | Only `pre-commit` |
+| CI workflows (`.github/workflows/`) | All **placeholder/TODO** — every project needs its own CI |
 
-## Creating a new project
+## Container is ephemeral
 
-1. `mkdir <project-name>`
-2. `cd <project-name> && git init`
-3. Add project-specific `AGENTS.md`, CI, tooling config, dependencies
-4. Create on GitHub, `git remote add origin <url>`
-5. Push initial commit per the git workflow (topic branch → PR)
-
-## Container is ephemeral — nothing survives a rebuild
-
-The dev container has no persistent home directory. After a rebuild:
-- `gh` auth is lost
-- `~/.profile` (with `GH_TOKEN` and `GIT_SSH_COMMAND`) is lost
-
-### Bootstrap after rebuild
+`gh` auth, `~/.profile` (GH_TOKEN, GIT_SSH_COMMAND) are lost on rebuild. Bootstrap:
 
 ```bash
 ./setup.sh
 ```
 
-This will:
-1. Append `~/.profile` with `GH_TOKEN` extraction and `UseKeychain` workaround
-2. Run `gh auth login --git-protocol ssh --web` (device-code flow) if needed
-3. Source the profile so vars are available immediately
+See `.opencode/instructions/git-workflow.md` for SSH/GH_TOKEN details (always applied).
 
-### Manual steps (if `setup.sh` can't be used)
+## GitHub workflows
 
-1. **`~/.profile`** — create it with:
-   ```sh
-   # Export GH_TOKEN from gh hosts.yml for API auth
-   if [ -f "$HOME/.config/gh/hosts.yml" ]; then
-     export GH_TOKEN=$(grep oauth_token "$HOME/.config/gh/hosts.yml" | head -1 | awk '{print $2}')
-   fi
+- Pushing `feature/*`, `fix/*`, or `bugfix/*` auto-opens a PR to `development` (`open-pr-to-development.yml`)
+- PRs to `main` must come from `development` (`main-pr-source.yml`)
+- CI workflows are placeholders — replace with per-project lint/test commands
 
-   # SSH config workaround (Linux container, macOS host with UseKeychain)
-   if [ -f "$HOME/.ssh/config" ] && grep -q UseKeychain "$HOME/.ssh/config" 2>/dev/null; then
-     cp "$HOME/.ssh/config" /tmp/ssh_config && sed -i '/UseKeychain/d' /tmp/ssh_config
-     export GIT_SSH_COMMAND="ssh -F /tmp/ssh_config"
-   fi
-   ```
-2. **`gh auth login --git-protocol ssh --web`** — authenticate with the device code
-3. Source the profile: `. ~/.profile`
+## Creating a new project
 
-## Commands (workspace root only)
+```bash
+mkdir <project>
+cd <project> && git init
+# Add AGENTS.md, CI, tooling config, dependencies
+# Create on GitHub, git remote add origin <url>
+# Push per git-workflow.md (topic branch → PR)
+```
 
-| Action | Command |
-|--------|---------|
-| Install workspace pre-commit hooks | `pre-commit install` |
-| Bootstrap after container rebuild | `./setup.sh` |
-
-Subfolder projects define their own commands.
-
-## Git workflow
-
-Follow `.opencode/instructions/git-workflow.md` for each project repo: topic branches from `development`, PRs, no rebase, annotated SemVer tags.
-
-SSH workaround (Linux container, macOS host) is documented in the same file.
+Subfolder projects define their own commands and pre-commit hooks. Root commands are only `pre-commit install` and `./setup.sh`.
