@@ -17,7 +17,8 @@ fi
 
 # SSH config workaround (Linux container, macOS host with UseKeychain)
 if [ -f "$HOME/.ssh/config" ] && grep -q UseKeychain "$HOME/.ssh/config" 2>/dev/null; then
-  export GIT_SSH_COMMAND="ssh -F <(sed '/UseKeychain/d' "$HOME/.ssh/config")"
+  cp "$HOME/.ssh/config" /tmp/ssh_config && sed -i '/UseKeychain/d' /tmp/ssh_config
+  export GIT_SSH_COMMAND="ssh -F /tmp/ssh_config"
 fi
 EOF
 fi
