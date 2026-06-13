@@ -57,6 +57,10 @@ This is handled automatically by `~/.profile` (see `AGENTS.md`), which sets `GIT
   ```bash
   unset GH_TOKEN && gh auth login --git-protocol ssh --web
   ```
+- `~/.ssh/` is on a read-only filesystem, so `UserKnownHostsFile` must point to `/tmp/`:
+  ```bash
+  export GIT_SSH_COMMAND="$GIT_SSH_COMMAND -o UserKnownHostsFile=/tmp/known_hosts"
+  ```
 
 ## Releases and tags
 
