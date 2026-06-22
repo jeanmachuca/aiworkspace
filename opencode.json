@@ -39,6 +39,7 @@
   },
   "model": "code-inference/model.gguf",
   "instructions": [
-    "AGENTS.md"
+    "AGENTS.md",
+    "nacedigital-landing-page/.opencode/instructions/secrets.md"
   ]
 }
