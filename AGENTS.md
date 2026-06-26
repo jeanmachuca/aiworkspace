@@ -9,6 +9,17 @@
 - Root config (`opencode.json`, `.pre-commit-config.yaml`, `.github/`) is scaffolding — do not apply to subfolder repos; they own their own tooling
 - Root commands: `pre-commit install` only. Subfolder projects define their own.
 
+## Active Repos
+
+| Repo | Path | Purpose | Status |
+|------|------|---------|--------|
+| `respiraconfianza-cl/respiraconfianzav2` | `./respiraconfianzav2` | **Production v2** — Lovable-managed frontend + EFs | Active |
+| `jeanmachuca/respiraconfianza-v2-sandbox` | `./respiraconfianza-v2-sandbox` | Scaffold/test (superseded by production) | Legacy |
+| `respiraconfianza-reverse-engineering` | `./respiraconfianza-reverse-engineering` | v1 audit + v2 planning docs | Planning |
+| `respiraconfianza-video-server` | `./respiraconfianza-video-server` | LiveKit + Coturn infra | DevOps |
+
+**IMPORTANT:** The production v2 repo is `respiraconfianza-cl/respiraconfianzav2` (development branch). The scaffold at `jeanmachuca/respiraconfianza-v2` was a planning artifact — do not commit production work there. See `respiraconfianza-reverse-engineering/v2/production-repo-audit/` for full findings.
+
 ## Directory usage
 
 - **Workspace root** (where `opencode.json` and this file live) — Use for all git operations, project files, and cloned repos. This is the persistent working directory.
